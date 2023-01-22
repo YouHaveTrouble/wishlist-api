@@ -2,10 +2,20 @@ import argparse
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
 
 from list_manager import create_list, check_password, add_entry, remove_entry, get_entries, count_entries
 
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class NewList(BaseModel):
