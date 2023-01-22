@@ -66,14 +66,14 @@ async def get_entry(list_id: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("arg parser")
     parser.add_argument(
-        "--app-port",
+        "--port",
         help="A port that app will be run on",
         type=int,
         default=8080,
         required=False
     )
     parser.add_argument(
-        "--app-host",
+        "--host",
         help="What ip this app should be hosted on",
         type=str,
         default="0.0.0.0",
