@@ -1,5 +1,4 @@
-import os
-
+import argparse
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -65,5 +64,22 @@ async def get_entry(list_id: str):
 
 
 if __name__ == "__main__":
-    port = int(os.getenv('PORT'))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    parser = argparse.ArgumentParser("arg parser")
+    parser.add_argument(
+        "--port",
+        help="A port that app will be run on",
+        type=int,
+        default=8080,
+        required=False
+    )
+    parser.add_argument(
+        "--host",
+        help="What ip this app should be hosted on",
+        type=str,
+        default="0.0.0.0",
+        required=False
+    )
+
+    args = parser.parse_args()
+
+    uvicorn.run(app, host=args.host, port=args.port)
