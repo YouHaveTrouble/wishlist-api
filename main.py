@@ -1,3 +1,6 @@
+import os
+
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -59,3 +62,8 @@ async def get_entry(list_id: str):
     results = await get_entries(list_id)
     count = await count_entries(list_id)
     return {"entries": results, "count": count}
+
+
+if __name__ == "__main__":
+    port = int(os.getenv('PORT'))
+    uvicorn.run(app, host="0.0.0.0", port=port)
