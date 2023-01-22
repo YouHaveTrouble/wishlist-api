@@ -8,15 +8,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-db = mysql.connector.connect(
-    pool_size=16,
-    host=os.getenv('DB_HOST'),
-    port=os.getenv('DB_PORT'),
-    user=os.getenv('DB_USER'),
-    password=os.getenv('DB_PASSWORD'),
-    database=os.getenv('DB_NAME')
-)
-
 
 def random_id(chars=string.ascii_uppercase + string.digits + string.ascii_lowercase + "-_=+.>,<|*^@!"):
     return ''.join(random.choice(chars) for _ in range(12))
@@ -31,6 +22,14 @@ async def create_list(password):
     salt = os.urandom(32)
     password_hash = hash_password(password, salt)
 
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
+
     sql = "INSERT INTO wishlists (id, password, salt) VALUES (%s, %s, %s)"
     val = (new_id, password_hash, salt)
 
@@ -43,7 +42,13 @@ async def create_list(password):
 
 
 async def check_password(password_to_check, list_id) -> bool:
-    print(list_id)
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
     cursor = db.cursor()
     try:
         sql = "SELECT password, salt FROM wishlists where id = %s;"
@@ -72,31 +77,57 @@ async def check_password(password_to_check, list_id) -> bool:
         return False
     finally:
         cursor.close()
+        db.close()
 
 
 async def add_entry(url, list_id):
     sql = "INSERT INTO entries (list_id, url) VALUES (%s, %s)"
     val = (list_id, url)
 
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
+
     cursor = db.cursor()
     cursor.execute(sql, val)
     db.commit()
 
     cursor.close()
+    db.close()
 
 
 async def remove_entry(list_id, entry_id):
     sql = "DELETE FROM entries WHERE list_id = %s AND id = %s"
     val = (list_id, entry_id)
+
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
     cursor = db.cursor()
     cursor.execute(sql, val)
     db.commit()
     cursor.close()
+    db.close()
 
 
 async def get_entries(list_id):
     sql = "SELECT id, url FROM entries WHERE list_id = %s;"
     val = (list_id,)
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
     cursor = db.cursor()
     cursor.execute(sql, val)
     records = cursor.fetchall()
@@ -104,11 +135,13 @@ async def get_entries(list_id):
     entries = []
 
     for row in records:
-        print(row)
         entries.append({
             "id": row[0],
             "url": row[1]
         })
+
+    cursor.close()
+    db.close()
 
     return entries
 
@@ -116,9 +149,19 @@ async def get_entries(list_id):
 async def count_entries(list_id):
     sql = "SELECT COUNT(*) FROM entries WHERE list_id = %s;"
     val = (list_id,)
+    db = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
     cursor = db.cursor()
     cursor.execute(sql, val)
     records = cursor.fetchone()
+
+    cursor.close()
+    db.close()
 
     for row in records:
         return row
