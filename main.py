@@ -24,13 +24,13 @@ class RemoveEntry(BaseModel):
     entry_id: int
 
 
-@app.post("/v1/list/create", status_code=201)
+@app.post("/v1/list/", status_code=201)
 async def create_new_list(new_list: NewList):
     list_id = await create_list(new_list.password)
     return {"id": list_id}
 
 
-@app.post("/v1/list/add", status_code=201)
+@app.post("/v1/entry/", status_code=201)
 async def add_list_entry(new_entry: NewEntry):
     password_valid = await check_password(new_entry.list_password, new_entry.list_id)
     if not password_valid:
@@ -46,7 +46,7 @@ async def add_list_entry(new_entry: NewEntry):
     return {"message": "created"}
 
 
-@app.delete("/v1/list/remove", status_code=200)
+@app.delete("/v1/list/", status_code=200)
 async def add_list_entry(entry: RemoveEntry):
     password_valid = await check_password(entry.list_password, entry.list_id)
     if not password_valid:
